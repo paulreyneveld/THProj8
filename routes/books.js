@@ -15,8 +15,7 @@ function asyncHandler(cb){
 
 /* GET all books */
 router.get('/', asyncHandler(async (req, res) => {
-  const books = await Book.findAll();
-  console.log(books);
+  const books = await Book.findAll({ order: [["title", "ASC"]]});
   res.render("books/index", { books, title: "List of Books" });
 }));
 
@@ -27,17 +26,61 @@ router.get('/new', asyncHandler(async (req, res) => {
 
 // POST /books/new Posts a new book to the database. 
 router.post('/new', asyncHandler(async (req, res) => {
+  try {
   const book = await Book.create(req.body);
-  res.redirect("/books/" + book.id);
+  res.redirect("/");
+  }
+  catch (error) {
+    if (error.name == "SequelizeValidationError") {
+      const errors = error.errors;
+      res.render("books/error", { book: {}, errors } );
+    }
+  }
 }));
 
 // GET /books/:id Shows book detail form.
 router.get('/:id', asyncHandler(async (req, res) => {
   const book = await Book.findByPk(req.params.id);
-  res.render("books/show", { book: book, title: book.title});
+  if (book) {
+    res.render("books/book-detail", { book: book, title: book.title});
+  }
+  else {
+    res.render("books/page-not-found");
+  }
 }));
 
 // POST /books/:id Updates book info in the database.
+router.post('/:id', asyncHandler(async (req, res) => {  
+  try {
+    const book = await Book.findByPk(req.params.id);
+    let newBook = {};
+    newBook.title = req.body.title;
+    newBook.author = req.body.author;
+    newBook.genre = req.body.genre;
+    newBook.year = req.body.year;
+    await book.update(newBook);
+    res.redirect("/");
+  }
+  catch (error) {
+    if (error.name == "SequelizeValidationError") {
+      const errors = error.errors;
+      const book = await Book.findByPk(req.params.id);
+      res.render("books/update-error", { book, errors } );
+    }
+  }
+}));
+
 // POST /books/id/delete Deletes a book.
+router.post('/:id/delete', asyncHandler(async (req, res) => {
+  const book = await Book.findByPk(req.params.id);
+  await book.destroy();
+  res.redirect("/");
+}));
+
+// Catch all for 404 request errors
+router.get('/*', asyncHandler(async (req, res) => {
+  res.render("books/page-not-found");
+}));
  
+
 module.exports = router;
