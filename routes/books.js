@@ -13,11 +13,19 @@ function asyncHandler(cb){
   }
 }
 
-/* GET all books */
+// GET all books 
 router.get('/', asyncHandler(async (req, res) => {
   const books = await Book.findAll({ order: [["title", "ASC"]]});
   res.render("books/index", { books, title: "List of Books" });
 }));
+
+// Get test 500 error
+router.get('/error', (req, res, next) => {
+  const err = new Error();
+  err.message = 'Custom 500 error thrown';
+  err.status = 500;
+  throw err;
+});
 
 // GET /books/new Shows the create new book form. 
 router.get('/new', asyncHandler(async (req, res) => {
@@ -39,13 +47,16 @@ router.post('/new', asyncHandler(async (req, res) => {
 }));
 
 // GET /books/:id Shows book detail form.
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', asyncHandler(async (req, res, next) => {
   const book = await Book.findByPk(req.params.id);
   if (book) {
     res.render("books/update-book", { book: book, title: book.title});
   }
   else {
-    res.render("books/page-not-found");
+    const err = new Error();
+    err.status = 404;
+    err.message = "It seems like you're looking for a book that doesn't exist...";
+    next(err);
   }
 }));
 
@@ -77,10 +88,6 @@ router.post('/:id/delete', asyncHandler(async (req, res) => {
   res.redirect("/");
 }));
 
-// Catch all for 404 request errors
-router.get('/*', asyncHandler(async (req, res) => {
-  res.render("books/page-not-found");
-}));
- 
+
 
 module.exports = router;

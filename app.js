@@ -23,24 +23,23 @@ app.use('/', indexRouter);
 app.use('/books', booksRouter);
 
 // Forward 404 errors to approprate pug template
-app.get('*', function(req, res, next) {
-  res.render("books/page-not-found");
-});
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use((req, res, next) => {
+  console.log("first error");
+  res.status(404).render("books/page-not-found");
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.use((err, req, res, next) => {
+  if (err) 
+    console.log(res.status)
+    console.log('Global error handler called', err);
+  if (err.status === 404) {
+    console.log(err.message);
+    res.status(404).render('books/page-not-found',  { err } ); 
+  } else {
+    err.message = err.message || `Oops!  It looks like something went wrong on the server.`;
+    res.status(err.status || 500).render("books/global-error", { err }); 
+  }
 });
 
 module.exports = app;

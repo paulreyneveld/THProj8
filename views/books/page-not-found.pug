@@ -5,3 +5,9 @@ block content
   p Sorry, page doesn't exist. 
   p
     a(href="/books") Return to Book Listing
+    
+  if err
+    p= err.status
+    p= err.message
+    p Stack trace: 
+    p= err.stack
