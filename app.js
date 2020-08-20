@@ -24,7 +24,6 @@ app.use('/books', booksRouter);
 
 // Forward 404 errors to approprate pug template
 app.use((req, res, next) => {
-  console.log("first error");
   res.status(404).render("books/page-not-found");
 });
 
