@@ -1,6 +1,7 @@
 'use strict';
 const Sequelize = require('sequelize');
 
+// Defines ORM model interfacing with the DB. 
 module.exports = (sequelize) => {
   class Book extends Sequelize.Model {}
   Book.init({

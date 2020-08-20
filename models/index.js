@@ -1,5 +1,7 @@
 'use strict';
 
+// Defines generic relationship with DB through ORM. 
+
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');

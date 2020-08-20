@@ -88,6 +88,4 @@ router.post('/:id/delete', asyncHandler(async (req, res) => {
   res.redirect("/");
 }));
 
-
-
 module.exports = router;
